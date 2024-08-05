@@ -1,0 +1,185 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+
+// O "p" na frente de alguns itens é para tabelas relacionadas ao Perfil de Acesso
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("URL_BANCO")
+}
+
+// tamanho mínimo de campo: 30
+// opçòes de tamanho: 30, 50, 100, 500, 1000, Indefinido (Tipo Texto) 
+// 500 para descrições grandes ou indeterminadas
+// 100 para descrições pequenas
+
+
+model Cidades {
+  id              Int               @id @default(autoincrement())
+  codigo_ibge     Int               @unique
+  nome            String            @db.VarChar(50) 
+  uf              String            @db.VarChar(30) 
+  situacao        String            @db.VarChar(30)  @default("Ativo")
+  created_at      DateTime?                 @default(now())
+  updated_at      DateTime?                 @updatedAt   
+
+  @@map("cidades")
+  @@index([codigo_ibge]) 
+}
+
+model Estados {
+  id              Int               @id @default(autoincrement())
+  codigo_ibge     Int               @unique
+  nome            String            @db.VarChar(50) 
+  sigla           String            @db.VarChar(30) 
+  situacao        String            @db.VarChar(30)  @default("Ativo")
+  created_at      DateTime?                 @default(now())
+  updated_at      DateTime?                 @updatedAt   
+
+  @@map("estados")
+  @@index([codigo_ibge]) 
+} 
+
+
+
+model Departamentos {
+  id                     Int               @id @default(autoincrement())
+  nome                   String            @db.VarChar(50) @unique
+  situacao               String            @db.VarChar(30)  @default("Ativo")
+  usuarios_departamentos Usuarios[]
+  created_at      DateTime?                @default(now())
+  updated_at      DateTime?                @updatedAt   
+ 
+  @@map("departamentos")
+}
+
+model Orgaos {
+  id              Int               @id @default(autoincrement())
+  nome            String            @db.VarChar(50) @unique
+  cnpj            String            @db.VarChar(30) @unique
+  situacao        String            @db.VarChar(30)  @default("Ativo")
+  usuarios_orgaos Usuarios[]
+  created_at      DateTime?                 @default(now())
+  updated_at      DateTime?                 @updatedAt   
+
+
+  @@map("orgaos")
+} 
+
+
+
+model Funcionalidades {
+  id              Int                        @id @default(autoincrement())
+  nome            String                     @db.VarChar(50) @unique
+  descricao       String?                    @db.VarChar(100) 
+  acoes           Acoes[]   
+  perfis_telas    PerfisFuncionalidades[]            
+  usuarios_telas  UsuariosFuncionalidades[]
+  situacao        String                     @db.VarChar(30)  @default("Ativo")
+  created_at      DateTime?                  @default(now())
+  updated_at      DateTime?                  @updatedAt       
+  
+  @@map("p_funcionalidades")
+} 
+
+model Acoes {
+  id                              Int                       @id @default(autoincrement())
+  nome                            String                    @db.VarChar(30) @unique
+  situacao                        String                    @db.VarChar(30)  @default("Ativo")
+  perfis_funcionalidades_acoes    PerfisFuncionalidades[]           
+  usuarios_funcionalidades_acoes  UsuariosFuncionalidades[]
+  telas_acoes                     Funcionalidades[]
+  created_at                      DateTime?                 @default(now())
+  updated_at                      DateTime?                 @updatedAt       
+  
+  @@map("p_acoes")
+} 
+
+model Perfis {
+  id              Int                      @id @default(autoincrement())
+  nome            String                   @db.VarChar(50) @unique
+  descricao       String?                  @db.VarChar(100) 
+  funcionalidades PerfisFuncionalidades[]           
+  usuarios_perfis Usuarios[]
+  situacao        String                   @db.VarChar(30)  @default("Ativo")
+  created_at      DateTime?                @default(now())
+  updated_at      DateTime?                @updatedAt
+
+  @@map("p_perfis")
+} 
+
+model PerfisFuncionalidades {
+  id                Int                 @id @default(autoincrement())
+  perfil            Perfis              @relation(fields: [perfil_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  perfil_id         Int 
+  funcionalidade    Funcionalidades     @relation(fields: [funcionalidade_id], references: [id])
+  funcionalidade_id Int   	                                                    
+  acoes             Acoes[]    
+  created_at        DateTime?           @default(now())
+  updated_at        DateTime?           @updatedAt       
+ 
+
+  @@index([perfil_id, funcionalidade_id]) 
+  @@map("p_perfis_funcionalidades")
+}
+
+model Usuarios {
+  id                    Int                        @id @default(autoincrement())
+  nome                  String                     @db.VarChar(100) @unique
+  cpf                   String                     @db.VarChar(30) @unique
+  email                 String?                    @db.VarChar(50) @unique
+  matricula             String?                    @db.VarChar(30) 
+  tipo_servidor         TiposServidores?           @relation(fields: [tipo_servidor_id], references: [id])
+  tipo_servidor_id      Int? 
+  departamento          Departamentos?             @relation(fields: [departamento_id], references: [id])
+  departamento_id       Int? 
+  orgao                 Orgaos?                    @relation(fields: [orgao_id], references: [id])
+  orgao_id              Int? 
+  perfis                Perfis[]
+  funcionalidades_acoes UsuariosFuncionalidades[]
+  ultimo_acesso         DateTime? 
+  situacao              String                     @db.VarChar(30)  @default("Ativo")  
+  created_at            DateTime?                  @default(now())
+  updated_at            DateTime?                  @updatedAt   
+
+  @@map("p_usuarios")
+} 
+
+
+
+
+model UsuariosFuncionalidades {
+  id                  Int               @id @default(autoincrement())
+  usuario             Usuarios          @relation(fields: [usuario_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  usuario_id          Int   
+  funcionalidade      Funcionalidades   @relation(fields: [funcionalidade_id], references: [id])
+  funcionalidade_id   Int
+  acoes               Acoes[]
+  created_at          DateTime?                 @default(now())
+  updated_at          DateTime?                 @updatedAt   
+
+  @@index([usuario_id, funcionalidade_id]) 
+  @@map("p_usuarios_funcionalidades")
+}
+
+
+
+
+model TiposServidores {
+  id                              Int                       @id @default(autoincrement())
+  nome                            String                    @db.VarChar(30) @unique
+  situacao                        String                    @db.VarChar(30)  @default("Ativo")  
+  usuarios_tipos_servidores       Usuarios[]
+  created_at                      DateTime?                 @default(now())
+  updated_at                      DateTime?                 @updatedAt   
+
+  @@map("tipos_servidores")
+} 

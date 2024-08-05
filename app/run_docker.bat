@@ -1,0 +1,1 @@
+docker build -t loglab/sars_app:1.0 . --build-arg PORTAL_URL="https://dev.portal.mt.gov.br" --build-arg URL_API="https://sar-api-dev.apps.ocp-mti.infovia-mt" --build-arg URL_MT_LOGIN="https://dev.login.mt.gov.br" --build-arg CI_PROJECT_NAME="portal-web"

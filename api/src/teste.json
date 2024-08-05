@@ -1,0 +1,29 @@
+{
+  "nome": "Perfil 1",
+  "descricao": "Não informado",
+  "telas": {
+    "connectOrCreate": {
+      "where": {
+        "tela_id": 2
+      },
+      "create": [
+        {
+          "tela_id": 2,
+          "acoes": {
+            "connect": [
+              {
+                "id": 1
+              },
+              {
+                "id": 2
+              },
+              {
+                "id": 3
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
