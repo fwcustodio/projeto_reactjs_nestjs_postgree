@@ -54,10 +54,7 @@ module.exports = {
     plugins: [
       new MiniCssExtractPlugin(),
       new webpack.EnvironmentPlugin({
-        PORTAL_URL: process.env.PORTAL_URL,
-        URL_MT_LOGIN: process.env.URL_MT_LOGIN,
         URL_API: process.env.URL_API,
-        CI_PROJECT_NAME: process.env.CI_PROJECT_NAME,
       }),
     ],
     externals: {

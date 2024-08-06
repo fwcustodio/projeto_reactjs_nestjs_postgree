@@ -64,6 +64,11 @@ const RoutesConfig: RouteConfig[] = [
   },
 
   {
+    path: '/', // home painel
+    element: HomePainel,
+  },
+
+  {
     path: ROUTES.HOME_PAINEL, // home painel
     element: HomePainel,
   },
